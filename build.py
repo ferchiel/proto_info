@@ -5,6 +5,7 @@
 import os
 import analyze
 import lua_writer
+import csharp_writer
 
 INPUT_PATH = './input/'
 __cache = {}
@@ -36,33 +37,105 @@ for filename in os.listdir(INPUT_PATH):
 
 del parser
 
-writer = lua_writer.lua_writer(INPUT_PATH + 'proto_info.lua')
+l_writer = lua_writer.lua_writer(INPUT_PATH + 'proto_info.lua')
+cs_writer = csharp_writer.csharp_writer(INPUT_PATH + 'proto_info.cs')
 
 keys = { 'module', 'action', 'proto' }
 
-writer.write_beg()
-writer.table_beg( 'info', 'str' )
+
+cs_writer.write_beg()
+cs_writer.using('ProtoBuf')
+cs_writer.using('gprotocol')
+cs_writer.using('System')
+cs_writer.using('System.Collections.Generic')
+
+cs_writer.namespace_beg('protoinfo')
+cs_writer.class_beg('protofunc')
+
+cs_writer.write_line('public static Dictionary<string, int> _dic = new Dictionary<string, int>();')
+cs_writer.public()
+cs_writer.static()
+cs_writer.func_beg('void', 'init', '')
+
 for v in __cache.values():
-	writer.table_beg( v['index'], 'int' )
-	for k in keys:
-		writer.attribute( k, v[k], 'str' )
 	if 'request' in v:
-		writer.attribute( 'request', v['request'], 'str' )
+		cs_writer.write_line('_dic.Add("ProtoBuf." + ' + v['request'] + ', ' + str(v['index']) + ');')
+
+cs_writer.func_end()
+
+
+cs_writer.public()
+cs_writer.static()
+cs_writer.func_beg('ProtoBuf.IExtensible', 'decode', 'int proto_id, byte[] content')
+cs_writer.switch_beg('proto_id')
+
+
+l_writer.write_beg()
+l_writer.table_beg( 'decode', 'str' )
+for v in __cache.values():
+	l_writer.table_beg( v['index'], 'int' )
+	for k in keys:
+		l_writer.attribute( k, v[k], 'str' )
+	if 'request' in v:
+		l_writer.attribute( 'request', v['request'], 'str' )
 	if 'response' in v:
-		writer.attribute( 'response', v['response'], 'str' )
-	if 'push' in v:
-		writer.attribute( 'push', v['push'], 'str' )
-	writer.table_end()
+		cs_writer.case_ret( v['index'], 'SocketManager.ProtoBuf_Deserialize<%s>(content)' % v['response'])
+	l_writer.table_end()
 
-writer.table_end()
+l_writer.table_end()
+
+cs_writer.default('throw new Exception(String.Format("Decode No find net message id! id is {0}!"), proto_id)')
+cs_writer.switch_end()
+cs_writer.func_end()
 
 
-writer.table_beg( 'files', 'str' )
+cs_writer.public()
+cs_writer.static()
+cs_writer.func_beg('byte[]', 'encode', 'ProtoBuf.IExtensible data, out int proto_id')
+cs_writer.write_line('Type _t = data.GetType();')
+cs_writer.write_line('proto_id = _dic[_t.FullName];')
+cs_writer.write_line('using (MemoryStream m = new MemoryStream())')
+cs_writer.write_line('{')
+cs_writer.add_tab()
+cs_writer.write_line('byte[] buffer = null;')
+cs_writer.write_line('Serializer.Serialize(m, data);')
+cs_writer.write_line('m.Position = 0;')
+cs_writer.write_line('int length = (int)m.Length;')
+cs_writer.write_line('buffer = new byte[length];')
+cs_writer.write_line('m.Read(buffer, 0, length);')
+cs_writer.write_line('return buffer;')
+cs_writer.dec_tab()
+cs_writer.write_line('}')
+cs_writer.func_end()
+
+cs_writer.public()
+cs_writer.static()
+cs_writer.func_beg('int', 'dispatch', 'int proto_id, ProtoBuf.IExtensible data')
+cs_writer.switch_beg('proto_id')
+
+l_writer.table_beg('encode', 'str')
+for v in __cache.values():
+	if 'response' in v:
+		l_writer.attribute(v['response'], v['index'], 'int')
+		cs_writer.case_ret( v['index'], 'msg_handler.%s.%s((%s)data)' % (v['proto'], v['response'], 'ProtoBuf.' + v['response']))
+
+l_writer.table_end()
+
+cs_writer.default('throw new Exception(String.Format("Dispatch No find net message id! id is {0}!"), proto_id)')
+cs_writer.switch_end()
+cs_writer.func_end()
+
+l_writer.table_beg('files', 'str')
 for v in __files:
-	writer.array( v, 'str' )
+	l_writer.array(v, 'str')
 
-writer.table_end()
-writer.write_end()
+l_writer.table_end()
+l_writer.write_end()
+
+
+cs_writer.class_end()
+cs_writer.namespace_end()
+cs_writer.write_end()
 
 
 

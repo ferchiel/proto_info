@@ -72,7 +72,7 @@ class Analyze():
 				continue
 
 			if line.startswith( 'message' ) == True:
-				key_tab = ( 'request_', 'response_', 'push_' )
+				key_tab = ( 'request_', 'response_' )
 				re_key = None
 				for key in key_tab:
 					if line.find( key ) != -1:
@@ -89,8 +89,7 @@ class Analyze():
 
 				tab_name = line[ idx1 : idx2 ].strip()
 				tab_index = mmh3.hash( self.__package + '.' + tab_name )
-				if tab_index == 2029194464:
-					print(self.__name, tab_name)
+
 				if tab_index in self.__data:
 					if self.__data[tab_index]['action'] != tab_name:
 						print('Game Over Hash Collide Action Name:', tab_name)
