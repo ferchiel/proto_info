@@ -32,7 +32,7 @@ class Analyze():
 		self.__data = {}
 
 		print( 'Open file: ', file_path )
-		self.__file = open( file_path, 'r' )
+		self.__file = open( file_path, 'r', encoding='UTF-8' )
 		
 		idx = file_path.rfind( '/' )
 		if idx == -1:
