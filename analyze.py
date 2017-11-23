@@ -97,6 +97,7 @@ class Analyze():
 					self.__data[tab_index][re_key] = re_key + '_' + tab_name
 				else:
 					self.__data[tab_index] = {
+							'package' : self.__package,
 							'index' : tab_index,
 							'module' : self.__name + 'd',
 							'action' : tab_name,

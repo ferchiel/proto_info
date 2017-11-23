@@ -8,6 +8,8 @@ import lua_writer
 import csharp_writer
 
 INPUT_PATH = './input/'
+LUA_OUTPATH = './lua_out/'
+CS_OUTPATH = './cs_out/'
 __cache = {}
 __files = set()
 
@@ -37,10 +39,8 @@ for filename in os.listdir(INPUT_PATH):
 
 del parser
 
-l_writer = lua_writer.lua_writer(INPUT_PATH + 'proto_info.lua')
-cs_writer = csharp_writer.csharp_writer(INPUT_PATH + 'proto_info.cs')
-
-keys = { 'module', 'action', 'proto' }
+l_writer = lua_writer.lua_writer(LUA_OUTPATH + 'proto_info.lua')
+cs_writer = csharp_writer.csharp_writer(CS_OUTPATH + 'proto_info.cs')
 
 
 cs_writer.write_beg()
@@ -48,6 +48,7 @@ cs_writer.using('ProtoBuf')
 cs_writer.using('gprotocol')
 cs_writer.using('System')
 cs_writer.using('System.Collections.Generic')
+cs_writer.using('System.IO')
 
 cs_writer.namespace_beg('protoinfo')
 cs_writer.class_beg('protofunc')
@@ -59,7 +60,7 @@ cs_writer.func_beg('void', 'init', '')
 
 for v in __cache.values():
 	if 'request' in v:
-		cs_writer.write_line('_dic.Add("ProtoBuf." + ' + v['request'] + ', ' + str(v['index']) + ');')
+		cs_writer.write_line('_dic.Add("ProtoBuf.%s", %d);' % (v['request'], v['index']))
 
 cs_writer.func_end()
 
@@ -69,6 +70,7 @@ cs_writer.static()
 cs_writer.func_beg('ProtoBuf.IExtensible', 'decode', 'int proto_id, byte[] content')
 cs_writer.switch_beg('proto_id')
 
+keys = { 'index', 'module', 'action', 'proto', 'fullname' }
 
 l_writer.write_beg()
 l_writer.table_beg( 'decode', 'str' )
@@ -79,12 +81,13 @@ for v in __cache.values():
 	if 'request' in v:
 		l_writer.attribute( 'request', v['request'], 'str' )
 	if 'response' in v:
-		cs_writer.case_ret( v['index'], 'SocketManager.ProtoBuf_Deserialize<%s>(content)' % v['response'])
+		l_writer.attribute('response', v['response'], 'str')
+		cs_writer.case_ret( v['index'], 'SocketManager.ProtoBuf_Deserialize<%s.%s>(content)' % (v['package'], v['response']))
 	l_writer.table_end()
 
 l_writer.table_end()
 
-cs_writer.default('throw new Exception(String.Format("Decode No find net message id! id is {0}!"), proto_id)')
+cs_writer.default('throw new Exception(String.Format("Decode No find net message id! id is {0}!", proto_id))')
 cs_writer.switch_end()
 cs_writer.func_end()
 
@@ -117,11 +120,11 @@ l_writer.table_beg('encode', 'str')
 for v in __cache.values():
 	if 'response' in v:
 		l_writer.attribute(v['response'], v['index'], 'int')
-		cs_writer.case_ret( v['index'], 'msg_handler.%s.%s((%s)data)' % (v['proto'], v['response'], 'ProtoBuf.' + v['response']))
+		cs_writer.case_ret( v['index'], 'msg_handler.%s.%s((%s.%s)data)' % (v['proto'], v['response'], v['package'], v['response']))
 
 l_writer.table_end()
 
-cs_writer.default('throw new Exception(String.Format("Dispatch No find net message id! id is {0}!"), proto_id)')
+cs_writer.default('throw new Exception(String.Format("Dispatch No find net message id! id is {0}!", proto_id))')
 cs_writer.switch_end()
 cs_writer.func_end()
 

@@ -46,7 +46,7 @@ class lua_writer():
 			name = str(name)
 			s += '[' + name + '] = {\n'
 		else:
-			print('MAKE ERROR! FILE: lua_writer.py  LINE: 49')
+			print('proto info! lua_writer: line : 49! _type: ' + _type)
 			exit(0)
 		self.__file.write(s)
 		self.__table += 1
@@ -73,7 +73,7 @@ class lua_writer():
 			value = str(value)
 			s += '\'' + value + '\''
 		else:
-			print('MAKE ERROR! FILE: lua_writer.py  LINE: 76')
+			print('proto info! lua_writer: line : 76! _type: ' + _type)
 			exit(0)
 		s += ',\n'
 		self.__file.write(s)
@@ -91,7 +91,7 @@ class lua_writer():
 			value = str(value)
 			s += '\'' + value + '\''
 		else:
-			print('MAKE ERROR! FILE: lua_writer.py  LINE: 94')
+			print('proto info! lua_writer: line : 94! _type: ' + _type)
 			exit(0)
 		s += ',\n'
 		self.__file.write(s)
