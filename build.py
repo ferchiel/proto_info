@@ -7,7 +7,7 @@ import analyze
 import lua_writer
 import csharp_writer
 
-INPUT_PATH = './input/'
+INPUT_PATH = '../../proto/'
 LUA_OUTPATH = './lua_out/'
 CS_OUTPATH = './cs_out/'
 __cache = {}
@@ -28,11 +28,8 @@ for filename in os.listdir(INPUT_PATH):
 		if idx in __cache:
 			print('Game Over Hash Collide File:', 
 					parser.get_path() + parser.get_file_name() + '.' + parser.get_ex_name(), 
-					'Action Name:', 
-					v['action'], 
 					'Hash Num.:', 
 					idx)
-			print(__cache[idx]['module'], __cache[idx]['action'])
 			os._exit(0)
 
 	__cache.update( data )
@@ -70,7 +67,7 @@ cs_writer.static()
 cs_writer.func_beg('ProtoBuf.IExtensible', 'decode', 'int proto_id, byte[] content')
 cs_writer.switch_beg('proto_id')
 
-keys = { 'index', 'module', 'action', 'proto', 'fullname' }
+keys = { 'index', 'proto', 'package' }
 
 l_writer.write_beg()
 l_writer.table_beg( 'decode', 'str' )

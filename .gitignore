@@ -1,6 +1,8 @@
 __pycache__/
 input/
+dist/
 *.swp
 *.pyc
+setup.py
 
 

@@ -99,7 +99,7 @@ class Analyze():
 					self.__data[tab_index] = {
 							'package' : self.__package,
 							'index' : tab_index,
-							'module' : self.__name + 'd',
+							# 'module' : self.__name + 'd',
 							'action' : tab_name,
 							'proto' : self.__name,
 							re_key : re_key + '_' + tab_name,
