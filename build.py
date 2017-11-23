@@ -57,7 +57,7 @@ cs_writer.func_beg('void', 'init', '')
 
 for v in __cache.values():
 	if 'request' in v:
-		cs_writer.write_line('_dic.Add("ProtoBuf.%s", %d);' % (v['request'], v['index']))
+		cs_writer.write_line('_dic.Add("%s.%s", %d);' % (v['package'], v['request'], v['index']))
 
 cs_writer.func_end()
 
