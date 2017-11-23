@@ -50,21 +50,21 @@ cs_writer.using('System.IO')
 cs_writer.namespace_beg('protoinfo')
 cs_writer.class_beg('protofunc')
 
-cs_writer.write_line('public static Dictionary<string, int> _dic = new Dictionary<string, int>();')
+cs_writer.write_line('public static Dictionary<string, uint> _dic = new Dictionary<string, uint>();')
 cs_writer.public()
 cs_writer.static()
 cs_writer.func_beg('void', 'init', '')
 
 for v in __cache.values():
 	if 'request' in v:
-		cs_writer.write_line('_dic.Add("%s.%s", %d);' % (v['package'], v['request'], v['index']))
+		cs_writer.write_line('_dic.Add("%s.%s", %u);' % (v['package'], v['request'], v['index']))
 
 cs_writer.func_end()
 
 
 cs_writer.public()
 cs_writer.static()
-cs_writer.func_beg('ProtoBuf.IExtensible', 'decode', 'int proto_id, byte[] content')
+cs_writer.func_beg('ProtoBuf.IExtensible', 'decode', 'uint proto_id, byte[] content')
 cs_writer.switch_beg('proto_id')
 
 keys = { 'index', 'proto', 'package' }
@@ -91,7 +91,7 @@ cs_writer.func_end()
 
 cs_writer.public()
 cs_writer.static()
-cs_writer.func_beg('byte[]', 'encode', 'ProtoBuf.IExtensible data, out int proto_id')
+cs_writer.func_beg('byte[]', 'encode', 'ProtoBuf.IExtensible data, out uint proto_id')
 cs_writer.write_line('Type _t = data.GetType();')
 cs_writer.write_line('proto_id = _dic[_t.FullName];')
 cs_writer.write_line('using (MemoryStream m = new MemoryStream())')
@@ -110,7 +110,7 @@ cs_writer.func_end()
 
 cs_writer.public()
 cs_writer.static()
-cs_writer.func_beg('int', 'dispatch', 'int proto_id, ProtoBuf.IExtensible data')
+cs_writer.func_beg('int', 'dispatch', 'uint proto_id, ProtoBuf.IExtensible data')
 cs_writer.switch_beg('proto_id')
 
 l_writer.table_beg('encode', 'str')

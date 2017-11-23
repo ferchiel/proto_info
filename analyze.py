@@ -88,7 +88,8 @@ class Analyze():
 					idx2 = None
 
 				tab_name = line[ idx1 : idx2 ].strip()
-				tab_index = mmh3.hash( self.__package + '.' + tab_name )
+				tab_index = mmh3.hash(self.__package + '.' + tab_name)
+				tab_index &= 0xffffffff
 
 				if tab_index in self.__data:
 					if self.__data[tab_index]['action'] != tab_name:
