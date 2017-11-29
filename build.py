@@ -68,11 +68,15 @@ cs_writer.func_beg('ProtoBuf.IExtensible', 'decode', 'uint proto_id, byte[] cont
 cs_writer.switch_beg('proto_id')
 
 keys = { 'index', 'proto', 'package' }
+infos = {'request', 'response'}
 
 l_writer.write_beg()
 l_writer.table_beg( 'decode', 'str' )
 for v in __cache.values():
 	l_writer.table_beg( v['index'], 'int' )
+	if 'push' in v:
+		cs_writer.case_ret(v['index'], 'SocketManager.ProtoBuf_Deserialize<%s.%s>(content)' % (v['package'], v['push']))
+		continue
 	for k in keys:
 		l_writer.attribute( k, v[k], 'str' )
 	if 'request' in v:
@@ -115,6 +119,9 @@ cs_writer.switch_beg('proto_id')
 
 l_writer.table_beg('encode', 'str')
 for v in __cache.values():
+	if 'push' in v:
+		l_writer.attribute(v['proto'] + '.' + v['push'], v['index'], 'int')
+		cs_writer.case_ret(v['index'], 'msg_handler.%s.%s((%s.%s)data)' % (v['proto'], v['push'], v['package'], v['push']))
 	if 'response' in v:
 		l_writer.attribute(v['proto'] + '.' + v['response'], v['index'], 'int')
 		cs_writer.case_ret( v['index'], 'msg_handler.%s.%s((%s.%s)data)' % (v['proto'], v['response'], v['package'], v['response']))

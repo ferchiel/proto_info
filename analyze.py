@@ -72,7 +72,7 @@ class Analyze():
 				continue
 
 			if line.startswith( 'message' ) == True:
-				key_tab = ( 'request_', 'response_' )
+				key_tab = ( 'request_', 'response_', 'push_' )
 				re_key = None
 				for key in key_tab:
 					if line.find( key ) != -1:
@@ -81,6 +81,7 @@ class Analyze():
 
 				if not re_key:
 					continue
+
 				idx1 = line.index( re_key ) + len( re_key ) + 1
 
 				idx2 = line.find( '{' )
@@ -88,7 +89,12 @@ class Analyze():
 					idx2 = None
 
 				tab_name = line[ idx1 : idx2 ].strip()
-				tab_index = mmh3.hash(self.__package + '.' + tab_name)
+				tab_index = 0
+				if re_key == 'push':
+					tab_index = mmh3.hash(self.__package + '.' + re_key + '_' + tab_name)
+				else:
+					tab_index = mmh3.hash(self.__package + '.' + tab_name)
+
 				tab_index &= 0xffffffff
 
 				if tab_index in self.__data:
@@ -105,7 +111,7 @@ class Analyze():
 							'proto' : self.__name,
 							re_key : re_key + '_' + tab_name,
 							}
-		
+
 		self.__file.close()
 
 
