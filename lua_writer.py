@@ -63,7 +63,10 @@ class lua_writer():
 		s = ''
 		for x in range(self.__table):
 			s += '\t'
-		s += key + ' = '
+		if key.find('.'):
+			s += '[\'' + key + '\'] = '
+		else:
+			s += key + ' = '
 		if _type == 'int':
 			if int(value) == value:
 				value = int(value)

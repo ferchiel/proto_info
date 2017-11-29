@@ -116,7 +116,7 @@ cs_writer.switch_beg('proto_id')
 l_writer.table_beg('encode', 'str')
 for v in __cache.values():
 	if 'response' in v:
-		l_writer.attribute(v['response'], v['index'], 'int')
+		l_writer.attribute(v['package'] + '.' + v['response'], v['index'], 'int')
 		cs_writer.case_ret( v['index'], 'msg_handler.%s.%s((%s.%s)data)' % (v['proto'], v['response'], v['package'], v['response']))
 
 l_writer.table_end()
