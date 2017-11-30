@@ -73,10 +73,10 @@ infos = {'request', 'response'}
 l_writer.write_beg()
 l_writer.table_beg( 'decode', 'str' )
 for v in __cache.values():
-	l_writer.table_beg( v['index'], 'int' )
 	if 'push' in v:
 		cs_writer.case_ret(v['index'], 'SocketManager.ProtoBuf_Deserialize<%s.%s>(content)' % (v['package'], v['push']))
 		continue
+	l_writer.table_beg( v['index'], 'int' )
 	for k in keys:
 		l_writer.attribute( k, v[k], 'str' )
 	if 'request' in v:
